@@ -22,12 +22,13 @@ const showModal = () => {
 
 const handleOk = (e) => {
   userStore.handleRegister(userCredentials)
-  if (!errorMessage) {
+  if (!userStore.errorMessage) {
     open.value = false;
   }
 };
 
 const handleCancel = () => {
+  userStore.clearErrorMessage()
   open.value = false;
 };
 
@@ -45,8 +46,8 @@ const title = props.isLogin ? 'Connexion' : 'Inscription'
         <ATypographyText v-if="errorMessage" type="danger">{{ errorMessage }}</ATypographyText>
       </div>
       <template #footer>
-        <a-button key="back" @click="handleCancel">Annuler</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">{{ title }}</a-button>
+        <AButton key="back" @click="handleCancel">Annuler</AButton>
+        <AButton key="submit" type="primary" :loading="loading" @click="handleOk">{{ title }}</AButton>
       </template>
     </AModal>
   </div>
