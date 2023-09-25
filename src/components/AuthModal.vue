@@ -5,7 +5,7 @@ import {storeToRefs} from "pinia";
 
 const userStore = useUserStore()
 
-const { errorMessage, loading } = storeToRefs(userStore)
+const { errorMessage, loading, user } = storeToRefs(userStore)
 const props = defineProps(['isLogin'])
 const open = ref(false);
 // const loading = ref(false);
@@ -20,14 +20,26 @@ const showModal = () => {
   open.value = true;
 };
 
-const handleOk = (e) => {
-  userStore.handleRegister(userCredentials)
+const handleOk = async (e) => {
+  await userStore.handleRegister(userCredentials)
+
+  if (user.value) {
+    clearUserCredentialsInput()
+    open.value = false
+  }
 };
 
 const handleCancel = () => {
-  userStore.clearErrorMessage()
+  clearUserCredentialsInput()
   open.value = false;
 };
+
+const clearUserCredentialsInput = () => {
+  userCredentials.email = ""
+  userCredentials.username = ""
+  userCredentials.password = ""
+  userStore.clearErrorMessage()
+}
 
 const title = props.isLogin ? 'Connexion' : 'Inscription'
 </script>

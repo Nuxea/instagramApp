@@ -60,6 +60,18 @@ export const useUserStore = defineStore('users', () => {
       username, email
     })
 
+    const { data: newUser} = await supabase
+        .from("users")
+        .select()
+        .eq('email', email)
+        .single()
+
+    user.value = {
+      id: newUser.id,
+      email: newUser.email,
+      username: newUser.username
+    }
+
     loading.value = false
   }
   const handleLogout = () => {}
