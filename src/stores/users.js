@@ -15,7 +15,43 @@ export const useUserStore = defineStore('users', () => {
         );
   };
 
-  const handleLogin = () => {}
+  const handleLogin = async (credentials) => {
+    const { email, password } = credentials
+    if (!validateEmail(email)) {
+      return errorMessage.value = "Le format de l'email est invalide"
+    }
+
+    if (!password.length) {
+      return errorMessage.value = "La mot de passe ne peut pas être vide"
+    }
+
+    loading.value = true
+
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    if (error) {
+      loading.value = false
+      return errorMessage.value = error.message
+    }
+
+    const { data: existingUser } = await supabase
+        .from("users")
+        .select()
+        .eq('email', email)
+        .single()
+
+    user.value = {
+      id: existingUser.id,
+      email: existingUser.email,
+      username: existingUser.username
+    }
+
+    loading.value = false
+    errorMessage.value = ""
+  }
   const handleRegister = async (credentials) => {
     const {email, password, username} = credentials;
 
