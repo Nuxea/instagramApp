@@ -1,9 +1,11 @@
-<script setup></script>
+<script setup>
+import Nav from '@/components/Nav.vue'
+</script>
 
 <template>
   <main>
-    <button>Button</button>
-    <AButton type="primary">Button</AButton>
+    <Nav />
+    <RouterView />
   </main>
 </template>
 
