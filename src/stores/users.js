@@ -33,6 +33,16 @@ export const useUserStore = defineStore('users', () => {
     errorMessage.value = ""
 
     // VALIDATE IF USER EXISTS //
+    const { data: usernameAlreadyExists} = await supabase
+        .from("users")
+        .select()
+        .eq('username', username)
+        .single()
+
+    if (usernameAlreadyExists) {
+      return errorMessage.value = "Ce pseudo existe déjà..."
+    }
+
     const { error} = await supabase.auth.signUp({
       email, password
     })
