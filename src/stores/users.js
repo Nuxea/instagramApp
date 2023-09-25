@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import {supabase} from "@/supabase";
 
 export const useUserStore = defineStore('users', () => {
   const user = ref(null);
@@ -14,8 +15,8 @@ export const useUserStore = defineStore('users', () => {
   };
 
   const handleLogin = () => {}
-  const handleRegister = (credentials) => {
-    const { email, password, username} = credentials;
+  const handleRegister = async (credentials) => {
+    const {email, password, username} = credentials;
 
     if (password.length < 6) {
       return errorMessage.value = "Votre mot de passe doit faire plus de 6 caractères"
@@ -30,6 +31,19 @@ export const useUserStore = defineStore('users', () => {
     }
 
     errorMessage.value = ""
+
+    // VALIDATE IF USER EXISTS //
+    const { error} = await supabase.auth.signUp({
+      email, password
+    })
+
+    if (error) {
+      return errorMessage.value = error.message
+    }
+
+    await supabase.from("users").insert({
+      username, email
+    })
   }
   const handleLogout = () => {}
   const getUser = () => {}

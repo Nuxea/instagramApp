@@ -22,7 +22,7 @@ const showModal = () => {
 
 const handleOk = (e) => {
   userStore.handleRegister(userCredentials)
-  // open.value = false;
+  open.value = false;
 };
 
 const handleCancel = () => {
