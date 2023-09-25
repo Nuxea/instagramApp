@@ -111,7 +111,25 @@ export const useUserStore = defineStore('users', () => {
     loading.value = false
   }
   const handleLogout = () => {}
-  const getUser = () => {}
+  const getUser = async () => {
+    loading.value = true
+
+    const { data } = await supabase.auth.getUser()
+
+    const { data: userWithEmail } = await supabase
+        .from("users")
+        .select()
+        .eq("email", data.user.email)
+        .single()
+
+    user.value = {
+      id: userWithEmail.id,
+      username: userWithEmail.username,
+      email: userWithEmail.email
+    }
+
+    loading.value = false
+  }
 
   const clearErrorMessage = () => {
     errorMessage.value = ""
