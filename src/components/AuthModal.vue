@@ -1,21 +1,32 @@
-<script setup lang="ts">
-import { ref } from 'vue';
+<script setup>
+import {reactive, ref} from 'vue';
+import { useUserStore } from '@/stores/users'
+import {storeToRefs} from "pinia";
 
+const userStore = useUserStore()
+
+const { errorMessage } = storeToRefs(userStore)
 const props = defineProps(['isLogin'])
-const visible = ref<boolean>(false);
-const loading = ref<boolean>(false);
+const open = ref(false);
+const loading = ref(false);
+
+const userCredentials = reactive({
+  email: "",
+  username: "",
+  password: ""
+})
 
 const showModal = () => {
-  visible.value = true;
+  open.value = true;
 };
 
 const handleOk = (e) => {
-  console.log(e);
-  visible.value = false;
+  userStore.handleRegister(userCredentials)
+  // open.value = false;
 };
 
 const handleCancel = () => {
-  visible.value = false;
+  open.value = false;
 };
 
 const title = props.isLogin ? 'Connexion' : 'Inscription'
@@ -24,11 +35,12 @@ const title = props.isLogin ? 'Connexion' : 'Inscription'
 <template>
   <div>
     <AButton type="primary" @click="showModal">{{ title }}</AButton>
-    <AModal v-model:visible="visible" :title="title" @ok="handleOk">
+    <AModal v-model:open="open" :title="title" @ok="handleOk">
       <div class="input-container">
-        <AInput v-if="!isLogin" v-model:value="value" placeholder="Username" />
-        <AInput v-model:value="value" placeholder="Email" />
-        <AInput v-model:value="value" placeholder="Password" />
+        <AInput v-if="!isLogin" v-model:value="userCredentials.username" placeholder="Pseudo" type="text" />
+        <AInput v-model:value="userCredentials.email" placeholder="Email" type="email" />
+        <AInput v-model:value="userCredentials.password" placeholder="Mot de passe" type="password" />
+        <ATypographyText v-if="errorMessage" type="danger">{{ errorMessage }}</ATypographyText>
       </div>
       <template #footer>
         <a-button key="back" @click="handleCancel">Annuler</a-button>
