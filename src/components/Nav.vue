@@ -10,7 +10,6 @@ const userStore = useUserStore()
 const { user, loadingUser } = storeToRefs(userStore)
 const router = useRouter()
 const searchUsername = ref('')
-// const isAuthenticated = ref(false)
 
 const onSearch = () => {
   if (searchUsername.value) {
@@ -21,6 +20,10 @@ const onSearch = () => {
 
 const handleLogout = async () => {
   await userStore.handleLogout()
+}
+
+const goToUserProfile = () => {
+  router.push(`/profile/${user.value.username}`)
 }
 </script>
 
@@ -43,7 +46,7 @@ const handleLogout = async () => {
           <AuthModal :is-login="true" />
         </div>
         <div v-else class="left-content">
-          <AButton ghost>Mon Compte</AButton>
+          <AButton @click="goToUserProfile" ghost>Mon Compte</AButton>
           <AButton @click="handleLogout" type="primary" ghost>Déconnexion</AButton>
         </div>
       </div>
