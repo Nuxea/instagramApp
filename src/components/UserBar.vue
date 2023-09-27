@@ -9,19 +9,24 @@ const userStore = useUserStore()
 
 const { user } = storeToRefs(userStore)
 const { username: profileUsername } = route.params
-const props = defineProps(['username', 'userInfo'])
+const props = defineProps(['user', 'userInfo', 'addNewPost'])
 </script>
 
 <template>
-  <div class="userbar-container">
+  <div v-if="props.user" class="userbar-container">
     <div class="top-content">
-      <ATypographyTitle :level="2">{{ props.username }}</ATypographyTitle>
-      <UploadImageModal v-if="user && profileUsername === user.username" />
+      <ATypographyTitle :level="2">{{ props.user.username }}</ATypographyTitle>
+      <UploadImageModal v-if="user && profileUsername === user.username" :addNewPost="addNewPost" />
     </div>
     <div class="bottom-content">
       <ATypographyTitle :level="5">{{ props.userInfo.posts }} posts</ATypographyTitle>
       <ATypographyTitle :level="5">{{ props.userInfo.followers }} followers</ATypographyTitle>
       <ATypographyTitle :level="5">{{ props.userInfo.following }} following</ATypographyTitle>
+    </div>
+  </div>
+  <div v-else class="userbar-container">
+    <div class="top-content">
+      <ATypographyTitle :level="2">Cet utilisateur n'existe pas</ATypographyTitle>
     </div>
   </div>
 </template>

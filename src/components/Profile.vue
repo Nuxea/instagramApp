@@ -2,32 +2,60 @@
 import Container from "@/components/Container.vue";
 import UserBar from "@/components/UserBar.vue";
 import ImageGallery from "@/components/ImageGallery.vue";
+import {onMounted, ref} from "vue";
+import {supabase} from "@/supabase";
+import {useRoute} from "vue-router";
+
+const route = useRoute()
+const user = ref(null)
+const { username } = route.params
+
+const posts = ref([])
+const loading = ref(false)
+const addNewPost = (post) => {
+  posts.value.unshift(post)
+}
+
+const fetchData = async () => {
+  loading.value = true
+  const { data: userData } = await supabase.from("users").select().eq("username", username).single()
+
+  if (!userData) {
+    loading.value = false
+    return user.value = null
+  }
+
+  user.value = userData
+
+  const { data: postData } = await supabase.from("posts").select().eq("owner_id", user.value.id)
+
+  posts.value = postData
+
+  loading.value = false
+}
+
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>
   <Container>
-    <div class="profile-container">
+    <div v-if="!loading" class="profile-container">
       <UserBar
           :key="$route.params.username"
-          username="Nuxea"
+          :addNewPost="addNewPost"
+          :user="user"
           :userInfo="{
             posts: 4,
             followers: 1000,
             following: 50
           }"
       />
-      <ImageGallery :posts="[
-                      {
-                        id: 1,
-                        image: 'https://images4.alphacoders.com/131/thumb-1920-1314559.png',
-                        title: 'Nezuko',
-                      },
-                      {
-                        id: 2,
-                        image: 'https://cst.brightspotcdn.com/dims4/default/c528a15/2147483647/strip/true/crop/3381x1930+219+0/resize/1461x834!/quality/90/?url=https%3A%2F%2Fcdn.vox-cdn.com%2Fthumbor%2F1HSveDedEc0uazJsotjcan4brh8%3D%2F0x0%3A3600x1930%2F3600x1930%2Ffilters%3Afocal%282442x863%3A2443x864%29%2Fcdn.vox-cdn.com%2Fuploads%2Fchorus_asset%2Ffile%2F24578258%2FChupa__Native__00_46_18_13r.jpg',
-                        title: 'Chupacabra',
-                      },
-                    ]" />
+      <ImageGallery :posts="posts" />
+    </div>
+    <div v-else class="spinner">
+      <ASpin size="large" />
     </div>
   </Container>
 </template>
@@ -38,5 +66,12 @@ import ImageGallery from "@/components/ImageGallery.vue";
   flex-direction: column;
   gap: 20px;
   padding: 30px 0;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 85vh;
 }
 </style>

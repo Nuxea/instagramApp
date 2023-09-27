@@ -5,7 +5,7 @@ const props = defineProps(['posts'])
 
 <template>
   <div class="image-gallery-container">
-    <img v-for="post in props.posts" :key="post.id" :src="post.image" :alt="post.title">
+    <img v-for="post in props.posts" :key="post.id" :src="`https://csqonlcnfljufnuyipuj.supabase.co/storage/v1/object/public/images/${post.url}`" :alt="post.title">
   </div>
 </template>
 
@@ -20,5 +20,6 @@ const props = defineProps(['posts'])
 .image-gallery-container img {
   width: 200px;
   object-fit: cover;
+  border-radius: 5px;
 }
 </style>

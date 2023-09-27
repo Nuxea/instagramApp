@@ -6,6 +6,7 @@ import {useUserStore} from "@/stores/users";
 
 const userStore = useUserStore()
 const {user} = storeToRefs(userStore);
+const props = defineProps(['addNewPost'])
 
 const loading = ref(false);
 const errorMessage = ref("")
@@ -27,10 +28,29 @@ const handleUploadChange = (e) => {
 const handleOk = async () => {
   loading.value = true;
   const fileName = Math.floor(Math.random() * 10000000000000000)
+  let filePath
   if (file.value) {
-    const response = await supabase.storage.from("images").upload('public/' + fileName, file.value)
-    console.log({response})
+    const { data, error } = await supabase.storage.from("images").upload('public/' + fileName, file.value)
+
+    if (error) {
+      loading.value = false
+      return errorMessage.value = "Impossible d'envoyer l'image"
+    }
+
+    filePath = data.path
+    await supabase.from("posts").insert({
+      url: filePath,
+      caption: caption.value,
+      owner_id: user.value.id
+    })
   }
+  loading.value = false
+  open.value = false
+  caption.value = ""
+  props.addNewPost({
+    url: filePath,
+    caption: caption.value,
+  })
 };
 const handleCancel = () => {
   open.value = false;
@@ -54,7 +74,7 @@ const handleCancel = () => {
         </ASpace>
       </div>
       <div v-else class="spinner" >
-        <ASpin />
+        <ASpin size="large" />
       </div>
     </AModal>
   </div>
