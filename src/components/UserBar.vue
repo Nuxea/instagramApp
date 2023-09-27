@@ -10,13 +10,19 @@ const userStore = useUserStore()
 
 const { user } = storeToRefs(userStore)
 const { username: profileUsername } = route.params
-const props = defineProps(['user', 'userInfo', 'addNewPost'])
 
-const followerUser = async () => {
+const props = defineProps(['user', 'addNewPost', 'isFollowing', 'userInfo'])
+
+const followUser = async () => {
   await supabase.from("followers_following").insert({
     follower_id: user.value.id,
     following_id: props.user.id
   })
+}
+const unfollowUser = async () => {
+  await supabase.from("followers_following").delete()
+      .eq("follower_id", user.value.id)
+      .eq("following_id", props.user.id)
 }
 </script>
 
@@ -26,7 +32,10 @@ const followerUser = async () => {
       <ATypographyTitle :level="2">{{ props.user.username }}</ATypographyTitle>
       <div v-if="user">
         <UploadImageModal v-if="profileUsername === user.username" :addNewPost="addNewPost" />
-        <AButton v-else @click="followerUser">Suivre</AButton>
+        <div v-else>
+          <AButton v-if="!props.isFollowing" @click="followUser">Suivre</AButton>
+          <AButton v-else @click="unfollowUser">Suivi</AButton>
+        </div>
       </div>
 
     </div>
