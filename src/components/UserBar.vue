@@ -11,15 +11,19 @@ const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const { username: profileUsername } = route.params
 
-const props = defineProps(['user', 'addNewPost', 'isFollowing', 'userInfo'])
+const props = defineProps(['user', 'addNewPost', 'isFollowing', 'updateIsFollowing', 'userInfo'])
 
 const followUser = async () => {
+  props.updateIsFollowing(true)
+  props.userInfo.followers = props.userInfo.followers +1
   await supabase.from("followers_following").insert({
     follower_id: user.value.id,
     following_id: props.user.id
   })
 }
 const unfollowUser = async () => {
+  props.updateIsFollowing(false)
+  props.userInfo.followers = props.userInfo.followers -1
   await supabase.from("followers_following").delete()
       .eq("follower_id", user.value.id)
       .eq("following_id", props.user.id)

@@ -2,7 +2,7 @@
 import Container from "@/components/Container.vue";
 import UserBar from "@/components/UserBar.vue";
 import ImageGallery from "@/components/ImageGallery.vue";
-import {onMounted, ref, watch} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {supabase} from "@/supabase";
 import {useRoute} from "vue-router";
 import {useUserStore} from "@/stores/users";
@@ -17,8 +17,14 @@ const user = ref(null)
 const isFollowing = ref(false)
 const posts = ref([])
 const loading = ref(false)
+const userInfo = reactive({
+  posts: null,
+  followers: null,
+  following: null
+})
 const addNewPost = (post) => {
   posts.value.unshift(post)
+  userInfo.posts = userInfo.posts +1
 }
 
 const fetchData = async () => {
@@ -41,6 +47,14 @@ const fetchData = async () => {
 
   posts.value = postsData
 
+  await fetchIsFollowing()
+  const followerCount = await fetchFollowerCount()
+  const followingCount = await fetchFollowingCount()
+
+  userInfo.posts = posts.value.length
+  userInfo.followers = followerCount
+  userInfo.following = followingCount
+
   loading.value = false
 }
 
@@ -55,6 +69,26 @@ const fetchIsFollowing = async () => {
 
     if (data) isFollowing.value = true
   }
+}
+
+const fetchFollowerCount = async () => {
+  const { count } = await supabase.from("followers_following")
+      .select('*', { count: 'exact' })
+      .eq("following_id", user.value.id)
+
+  return count
+}
+
+const fetchFollowingCount = async () => {
+  const { count } = await supabase.from("followers_following")
+      .select('*', { count: 'exact' })
+      .eq("follower_id", user.value.id)
+
+  return count
+}
+
+const updateIsFollowing = (follow) => {
+  isFollowing.value = follow
 }
 
 watch(loggedInUser, () => {
@@ -74,11 +108,8 @@ onMounted(() => {
           :addNewPost="addNewPost"
           :user="user"
           :isFollowing="isFollowing"
-          :userInfo="{
-            posts: 4,
-            followers: 1000,
-            following: 50
-          }"
+          :updateIsFollowing="updateIsFollowing"
+          :userInfo="userInfo"
       />
       <ImageGallery :posts="posts" />
     </div>
