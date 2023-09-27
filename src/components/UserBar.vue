@@ -16,7 +16,11 @@ const props = defineProps(['user', 'userInfo', 'addNewPost'])
   <div v-if="props.user" class="userbar-container">
     <div class="top-content">
       <ATypographyTitle :level="2">{{ props.user.username }}</ATypographyTitle>
-      <UploadImageModal v-if="user && profileUsername === user.username" :addNewPost="addNewPost" />
+      <div v-if="user">
+        <UploadImageModal v-if="profileUsername === user.username" :addNewPost="addNewPost" />
+        <AButton v-else>Suivre</AButton>
+      </div>
+
     </div>
     <div class="bottom-content">
       <ATypographyTitle :level="5">{{ props.userInfo.posts }} posts</ATypographyTitle>
