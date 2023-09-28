@@ -1,7 +1,11 @@
 <script setup>
 import Container from "@/components/Container.vue";
 import Card from "@/components/Card.vue";
+import {useUserStore} from "@/stores/users";
+import {storeToRefs} from "pinia";
 
+const userStore = useUserStore()
+const {user, loadingUser} = storeToRefs(userStore)
 const datas = [
   {
     id: 1,
@@ -20,8 +24,16 @@ const datas = [
 
 <template>
   <Container>
-    <div class="timeline-container">
-      <Card v-for="data in datas" :key="data.id" :post="data" />
+    <div v-if="!loadingUser">
+      <div v-if="user" class="timeline-container">
+        <Card v-for="data in datas" :key="data.id" :post="data" />
+      </div>
+      <div v-else class="timeline-container">
+        <h3>Connectez-vous pour voir les publications</h3>
+      </div>
+    </div>
+    <div v-else class="spinner">
+      <ASpin size="large" />
     </div>
   </Container>
 </template>
@@ -32,5 +44,12 @@ const datas = [
   flex-wrap: wrap;
   gap: 20px;
   padding: 30px 0;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 85vh;
 }
 </style>
