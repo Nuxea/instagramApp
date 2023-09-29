@@ -44,6 +44,7 @@ const fetchData = async () => {
   const { data: postsData } = await supabase.from("posts")
       .select()
       .eq("owner_id", user.value.id)
+      .order('created_at', {ascending:false})
 
   posts.value = postsData
 
